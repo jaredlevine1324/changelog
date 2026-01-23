@@ -17,7 +17,7 @@ async function fetchClosedTickets(startDate, endDate) {
           team: { id: { eq: "${LINEAR_TEAM_ID}" } }
         }
         first: 100
-        orderBy: completedAt
+        orderBy: updatedAt
       ) {
         nodes {
           id
