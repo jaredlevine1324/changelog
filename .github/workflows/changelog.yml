@@ -38,7 +38,6 @@ jobs:
           fi
       
       - name: Run changelog generator
-        if: steps.check_date.outputs.should_run == 'true'
         env:
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
           LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
