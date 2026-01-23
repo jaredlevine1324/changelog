@@ -191,12 +191,12 @@ function getDateRange() {
   
   let startDate, endDate;
   
-  // Mid-month run (15th): get tickets from 1st to 15th
-  if (day === 15) {
+  // Running on 14th: get tickets from 1st to 15th (for mid-month changelog)
+  if (day === 14) {
     startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     endDate = new Date(now.getFullYear(), now.getMonth(), 15, 23, 59, 59);
   }
-  // End of month run: get tickets from 16th to last day
+  // Running on 2nd-to-last day: get tickets from 16th to end of month (for end-of-month changelog)
   else {
     startDate = new Date(now.getFullYear(), now.getMonth(), 16);
     endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
