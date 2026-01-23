@@ -17,7 +17,7 @@ async function fetchClosedTickets(startDate, endDate) {
           team: { id: { eq: "${LINEAR_TEAM_ID}" } }
         }
         first: 100
-        orderBy: updatedAt
+        orderBy: completedAt
       ) {
         nodes {
           id
@@ -77,7 +77,7 @@ Your task:
 3. Select the BEST 3 Updates and BEST 6 Small Improvements
 4. For each selected item, write TWO descriptions:
    - "description": A clear, concise sentence describing what the feature/improvement is
-   - "marketing_copy": A straightforward sentence explaining what it enables and why it's useful. Use Linear's changelog tone: direct, clear, factual. No hype or marketing fluff. Focus on practical functionality and what users can now do. Keep it brief and professional.
+   - "marketing_copy": A complete standalone sentence that clearly states what the feature is AND why it's important. This sentence should make sense on its own without the title. Use Linear's changelog tone: direct, clear, factual. No hype or marketing fluff. Format: "[What was built/changed]. [What this enables/why it matters]." Example: "We added real-time collaboration to the document editor. Multiple users can now edit simultaneously with live cursor tracking, enabling faster team iteration."
 5. Provide brief reasoning for why you selected each item
 
 Respond ONLY with valid JSON in this exact format:
@@ -139,7 +139,10 @@ async function postToSlack(analysis, periodStart, periodEnd) {
   if (analysis.updates && analysis.updates.length > 0) {
     updatesText = '🚀 *Updates*\n\n';
     analysis.updates.forEach((item, i) => {
-      updatesText += `${i + 1}. ${item.identifier}: ${item.description}\n   ${item.marketing_copy}\n   Link: ${item.url}\n   _${item.reasoning}_\n\n`;
+      updatesText += `${i + 1}. *${item.description}*\n`;
+      updatesText += `   ${item.marketing_copy}\n`;
+      updatesText += `   🔗 <${item.url}|${item.identifier}>\n`;
+      updatesText += `   _Why selected: ${item.reasoning}_\n\n`;
     });
   }
 
@@ -148,7 +151,10 @@ async function postToSlack(analysis, periodStart, periodEnd) {
   if (analysis.improvements && analysis.improvements.length > 0) {
     improvementsText = '✨ *Small Improvements*\n\n';
     analysis.improvements.forEach((item, i) => {
-      improvementsText += `${i + 1}. ${item.identifier}: ${item.description}\n   ${item.marketing_copy}\n   Link: ${item.url}\n   _${item.reasoning}_\n\n`;
+      improvementsText += `${i + 1}. *${item.description}*\n`;
+      improvementsText += `   ${item.marketing_copy}\n`;
+      improvementsText += `   🔗 <${item.url}|${item.identifier}>\n`;
+      improvementsText += `   _Why selected: ${item.reasoning}_\n\n`;
     });
   }
 
