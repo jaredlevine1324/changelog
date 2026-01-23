@@ -1,0 +1,51 @@
+# .github/workflows/changelog.yml
+# GitHub Action that runs automatically on 15th and last day of each month
+
+name: Generate Product Changelog
+
+on:
+  schedule:
+    # Run on 15th of every month at 9 AM UTC
+    - cron: '0 9 15 * *'
+    # Run on last day of every month at 9 AM UTC
+    - cron: '0 9 28-31 * *'
+  
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Check if today is last day of month
+        id: check_date
+        run: |
+          today=$(date +%d)
+          tomorrow=$(date -d "+1 day" +%d)
+          if [ "$tomorrow" = "01" ] || [ "$today" = "15" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run changelog generator
+        if: steps.check_date.outputs.should_run == 'true'
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node changelog-generator.js
+      
+      - name: Skip notification
+        if: steps.check_date.outputs.should_run == 'false'
+        run: echo "Not the 15th or last day of month. Skipping changelog generation."
