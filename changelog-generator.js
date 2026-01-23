@@ -75,7 +75,9 @@ Your task:
 1. Identify which tickets are worth including in a public changelog (user-facing features, improvements, bug fixes)
 2. Categorize changelog-worthy items as either "Updates" (major features/changes) or "Small Improvements" (minor enhancements)
 3. Select the BEST 3 Updates and BEST 6 Small Improvements
-4. For each selected item, write a product-marketing-friendly description (one clear sentence)
+4. For each selected item, write TWO descriptions:
+   - "description": A clear, concise sentence describing what the feature/improvement is
+   - "marketing_copy": A straightforward sentence explaining what it enables and why it's useful. Use Linear's changelog tone: direct, clear, factual. No hype or marketing fluff. Focus on practical functionality and what users can now do. Keep it brief and professional.
 5. Provide brief reasoning for why you selected each item
 
 Respond ONLY with valid JSON in this exact format:
@@ -85,6 +87,7 @@ Respond ONLY with valid JSON in this exact format:
       "identifier": "TICKET-123",
       "url": "https://linear.app/...",
       "description": "Clear, user-friendly sentence describing the update",
+      "marketing_copy": "Compelling product-marketing sentence explaining what it is, what it unlocks, and why it's important",
       "reasoning": "Brief explanation of why this was selected"
     }
   ],
@@ -93,6 +96,7 @@ Respond ONLY with valid JSON in this exact format:
       "identifier": "TICKET-456",
       "url": "https://linear.app/...",
       "description": "Clear, user-friendly sentence describing the improvement",
+      "marketing_copy": "Compelling product-marketing sentence explaining what it is, what it unlocks, and why it's important",
       "reasoning": "Brief explanation of why this was selected"
     }
   ]
@@ -130,66 +134,35 @@ Respond ONLY with valid JSON in this exact format:
 async function postToSlack(analysis, periodStart, periodEnd) {
   const periodText = `${new Date(periodStart).toLocaleDateString()} - ${new Date(periodEnd).toLocaleDateString()}`;
   
-  let slackMessage = {
-    blocks: [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: `📋 Product Changelog: ${periodText}`
-        }
-      },
-      {
-        type: "divider"
-      }
-    ]
-  };
-
-  // Add Updates section
+  // Format updates as a rich text list
+  let updatesText = '';
   if (analysis.updates && analysis.updates.length > 0) {
-    slackMessage.blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: "*🚀 Updates*"
-      }
-    });
-
+    updatesText = '🚀 *Updates*\n\n';
     analysis.updates.forEach((item, i) => {
-      slackMessage.blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `${i + 1}. <${item.url}|${item.identifier}>: ${item.description}\n_${item.reasoning}_`
-        }
-      });
-    });
-
-    slackMessage.blocks.push({
-      type: "divider"
+      updatesText += `${i + 1}. ${item.identifier}: ${item.description}\n   ${item.marketing_copy}\n   Link: ${item.url}\n   _${item.reasoning}_\n\n`;
     });
   }
 
-  // Add Small Improvements section
+  // Format improvements as a rich text list
+  let improvementsText = '';
   if (analysis.improvements && analysis.improvements.length > 0) {
-    slackMessage.blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: "*✨ Small Improvements*"
-      }
-    });
-
+    improvementsText = '✨ *Small Improvements*\n\n';
     analysis.improvements.forEach((item, i) => {
-      slackMessage.blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `${i + 1}. <${item.url}|${item.identifier}>: ${item.description}\n_${item.reasoning}_`
-        }
-      });
+      improvementsText += `${i + 1}. ${item.identifier}: ${item.description}\n   ${item.marketing_copy}\n   Link: ${item.url}\n   _${item.reasoning}_\n\n`;
     });
   }
+
+  // Combine into full changelog text
+  const fullChangelog = `📋 *Product Changelog: ${periodText}*\n\n${updatesText}${improvementsText}`;
+
+  // Send to Slack workflow webhook with variables
+  // The webhook expects simple key-value pairs that you can reference in your Slack workflow
+  const slackMessage = {
+    period: periodText,
+    updates: updatesText,
+    improvements: improvementsText,
+    full_changelog: fullChangelog
+  };
 
   const response = await fetch(SLACK_WEBHOOK, {
     method: 'POST',
