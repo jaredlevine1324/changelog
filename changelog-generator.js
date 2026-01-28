@@ -17,7 +17,7 @@ async function fetchClosedTickets(startDate, endDate) {
           team: { id: { eq: "${LINEAR_TEAM_ID}" } }
         }
         first: 100
-        orderBy: updatedAt
+        orderBy: completedAt
       ) {
         nodes {
           id
@@ -187,20 +187,12 @@ async function postToSlack(analysis, periodStart, periodEnd) {
 
 function getDateRange() {
   const now = new Date();
-  const day = now.getDate();
   
-  let startDate, endDate;
+  // Get the first day of current month
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
   
-  // Running on 14th: get tickets from 1st to 15th (for mid-month changelog)
-  if (day === 14) {
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    endDate = new Date(now.getFullYear(), now.getMonth(), 15, 23, 59, 59);
-  }
-  // Running on 2nd-to-last day: get tickets from 16th to end of month (for end-of-month changelog)
-  else {
-    startDate = new Date(now.getFullYear(), now.getMonth(), 16);
-    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-  }
+  // Get the last day of current month
+  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
   
   return {
     startDate: startDate.toISOString(),
