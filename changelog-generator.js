@@ -74,7 +74,7 @@ ${ticketSummary}
 Your task:
 1. Identify which tickets are worth including in a public changelog (user-facing features, improvements, bug fixes)
 2. Categorize changelog-worthy items as either "Updates" (major features/changes) or "Small Improvements" (minor enhancements)
-3. Select the BEST 3 Updates and BEST 6 Small Improvements
+3. Select the BEST 4 Updates and BEST 6 Small Improvements
 4. For each selected item, write TWO descriptions:
    - "description": A clear, concise sentence describing what the feature/improvement is
    - "marketing_copy": A complete standalone sentence that clearly states what the feature is AND why it's important. This sentence should make sense on its own without the title. Use Linear's changelog tone: direct, clear, factual. No hype or marketing fluff. Format: "[What was built/changed]. [What this enables/why it matters]." Example: "We added real-time collaboration to the document editor. Multiple users can now edit simultaneously with live cursor tracking, enabling faster team iteration."
